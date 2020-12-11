@@ -98,8 +98,9 @@ const selectByField = async (Table, field, value, mode) => {
 			result.push(tuple[mode])
 		}
 	}
+
+	console.log("result", result)
 	return result
-	console.log(result)
 }
 
 /**
@@ -116,14 +117,16 @@ const insert = async (Table, obj, id) => {
 		console.log(error)
 		//table = {}
 	}
-	try {
-		if (checkId(Table, id)) {
-			err = new Error("cannot edit data that does not exist")
-			throw err
+	if (id !== null) {
+		try {
+			if (checkId(Table, id)) {
+				err = new Error("cannot edit data that does not exist")
+				throw err
+			}
+		} catch (error) {
+			error.httpstatuscode = 400
+			return error
 		}
-	} catch (error) {
-		error.httpstatuscode = 400
-		return error
 	}
 
 	id = id ? id : uniqid()

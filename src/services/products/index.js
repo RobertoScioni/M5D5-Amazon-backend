@@ -38,7 +38,7 @@ const { check, validationResult } = require("express-validator")
 const router = express.Router()
 const upload = multer({})
 const valid = [
-	check("id")
+	check("name")
 		.isLength({ min: 3 })
 		.withMessage("minimum lenght is 3 characters")
 		.exists()
@@ -62,6 +62,7 @@ const valid = [
 //routes
 router.get("/", async (req, res, next) => {
 	let body = null
+
 	try {
 		body = await openTable("products.json")
 		console.log(body)
@@ -70,7 +71,12 @@ router.get("/", async (req, res, next) => {
 		error.httpStatusCode = 500
 		next(error)
 	}
-	res.send(toArray(body, "_id"))
+	body = toArray(body, "_id")
+	if (req.query.hasOwnProperty("category")) {
+		body = body.filter((product) => product.category === req.query.category) //selectByField("products.json", "category", req.query.category, 1)
+	}
+
+	res.send(body)
 })
 
 router.post("/", valid, async (req, res, next) => {
@@ -83,7 +89,7 @@ router.post("/", valid, async (req, res, next) => {
 		next(err)
 		return
 	}
-	console.log("non dovrei esistere")
+	//console.log("non dovrei esistere")
 	try {
 		let body = { ...req.body }
 		body.createdAt = new Date()

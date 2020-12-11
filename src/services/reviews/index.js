@@ -64,6 +64,20 @@ router.get("/", async (req, res, next) => {
 	res.send(body)
 })
 
+router.get("/:id", async (req, res, next) => {
+	let body = null
+	try {
+		body = await openTable(table)
+		console.log(body)
+	} catch (error) {
+		console.error(error)
+		error.httpStatusCode = 500
+		next(error)
+	}
+	body = body.filter((review) => review.elementId === req.params.id)
+	res.send(body)
+})
+
 router.post("/", valid, async (req, res, next) => {
 	const errors = validationResult(req)
 	if (!errors.isEmpty()) {
