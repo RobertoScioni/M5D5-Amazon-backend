@@ -176,7 +176,7 @@ const toArray = (obj, idname) => {
 	let table = { ...obj }
 	for (tuple of Object.entries(table)) {
 		tuple[1][idname] = tuple[0]
-		result.push(tuple[mode][1])
+		result.push(tuple[1])
 	}
 	return result
 }
@@ -197,4 +197,5 @@ module.exports = {
 	selectByField,
 	del,
 	linkFile,
+	toArray,
 }

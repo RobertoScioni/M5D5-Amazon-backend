@@ -25,6 +25,7 @@ const {
 	insert,
 	checkId,
 	selectByField,
+	toArray,
 	del,
 	linkFile,
 } = require("../dbms")
@@ -69,7 +70,7 @@ router.get("/", async (req, res, next) => {
 		error.httpStatusCode = 500
 		next(error)
 	}
-	res.send(body)
+	res.send(toArray(body, "_id"))
 })
 
 router.post("/", valid, async (req, res, next) => {
@@ -145,7 +146,9 @@ router.post("/:id/image", upload.single("picture"), async (req, res, next) => {
 			"products.json",
 			req.params.id,
 			"image",
-			`http://localhost:${process.env.PORT}/img/products/${req.file.originalname}`
+			`http://localhost:${process.env.PORT || 2001}/img/products/${
+				req.file.originalname
+			}`
 		)
 		res.send("ok")
 	} catch (error) {
