@@ -23,6 +23,7 @@ const {
 	selectByField,
 	del,
 	linkFile,
+	toArray,
 } = require("../dbms")
 const { join } = require("path")
 const fs = require("fs-extra") //friendship ended with fs, fs extra is my new best friend
@@ -74,6 +75,7 @@ router.get("/:id", async (req, res, next) => {
 		error.httpStatusCode = 500
 		next(error)
 	}
+	body = toArray(body, "_id")
 	body = body.filter((review) => review.elementId === req.params.id)
 	res.send(body)
 })
