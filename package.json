@@ -1,5 +1,5 @@
 {
-	"name": "D04-student-management-backend",
+	"name": "D05-Amazon-backend",
 	"version": "2.0.0",
 	"description": "a simple backend to manage students and projects",
 	"main": "index.js",

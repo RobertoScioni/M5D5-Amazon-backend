@@ -17,7 +17,7 @@ const fs = require("fs-extra")
 const { join } = require("path")
 const uniqid = require("uniqid")
 const dbPath = join(__dirname, "../../../db")
-const tables = ["students.json", "projects.json", "reviews.json"]
+const tables = ["products.json", "reviews.json"]
 
 /**
  * this ensures the existance of the database and it's tables/files
@@ -105,7 +105,7 @@ const selectByField = async (Table, field, value, mode) => {
  * saves an object into a json file
  * @param {*} Table
  */
-const insert = async (Table, obj) => {
+const insert = async (Table, obj, id) => {
 	let table = {}
 	try {
 		table = await openTable(Table)
@@ -115,33 +115,82 @@ const insert = async (Table, obj) => {
 		console.log(error)
 		//table = {}
 	}
-	table[uniqid()] = obj
+	table[id || uniqid()] = obj
+	Table = join(dbPath, Table)
+	fs.outputJSON(Table, table)
+}
+
+const del = async (Table, id) => {
+	let table = {}
+	try {
+		table = await openTable(Table)
+		console.log("valid file to write on")
+	} catch (error) {
+		console.log("the table was empty")
+		console.log(error)
+		//table = {}
+	}
+	delete table[id]
+	Table = join(dbPath, Table)
+	fs.outputJSON(Table, table)
+}
+/**
+ * links a file to a field
+ * @param {*} Table
+ * @param {*} id
+ */
+const linkFile = async (Table, id, field, url) => {
+	let table = {}
+	try {
+		table = await openTable(Table)
+		console.log("valid file to write on")
+	} catch (error) {
+		console.log("the table was empty")
+		console.log(error)
+		//table = {}
+	}
+	try {
+		checkId(Table, id)
+	} catch (error) {
+		console.error(error)
+		error.httpstatuscode = 404
+		return error
+	}
+	table[id][field] = url
 	Table = join(dbPath, Table)
 	fs.outputJSON(Table, table)
 }
 
 /**
  * utility fuction to convert from the internar object based format do an array based format
- * @param {*} obj 
- * @param {*} idname 
+ * @param {*} obj
+ * @param {*} idname
  */
 
-const toArray = (obj,idname)=>{
-	let result[]
-	let table={...obj}
+const toArray = (obj, idname) => {
+	let result = []
+	let table = { ...obj }
 	for (tuple of Object.entries(table)) {
-		tuple[1][idname]=tuple[0]	
+		tuple[1][idname] = tuple[0]
 		result.push(tuple[mode][1])
 	}
 	return result
 }
 
-const toObject = (vect,primaryKey)=>{
-	let result={}
-	vect.forEach(tuple => {
-		let id=tuple[primaryKey]
+const toObject = (vect, primaryKey) => {
+	let result = {}
+	vect.forEach((tuple) => {
+		let id = tuple[primaryKey]
 		delete tuple[primaryKey]
-		result[id]=tuple
-	});
+		result[id] = tuple
+	})
 }
-module.exports = { initialize, openTable, insert, checkId, selectByField }
+module.exports = {
+	initialize,
+	openTable,
+	insert,
+	checkId,
+	selectByField,
+	del,
+	linkFile,
+}
