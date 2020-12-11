@@ -47,9 +47,10 @@ const initialize = async () => {
  * @param {*} Table the file to open
  */
 const openTable = async (Table) => {
+	console.log("opening file")
 	Table = join(dbPath, Table)
 	try {
-		const table = fs.readJSON(Table)
+		const table = await fs.readJSON(Table)
 		return table
 	} catch (error) {
 		console.error("could not read", Table)
@@ -115,16 +116,19 @@ const insert = async (Table, obj, id) => {
 		console.log(error)
 		//table = {}
 	}
-	table[id || uniqid()] = obj
+	id = id ? id : uniqid()
+	console.log("id dati da inserire ", id)
+	table[id] = obj
 	Table = join(dbPath, Table)
 	fs.outputJSON(Table, table)
+	return id
 }
 
 const del = async (Table, id) => {
 	let table = {}
 	try {
 		table = await openTable(Table)
-		console.log("valid file to write on")
+		console.log("valid file to delete fron")
 	} catch (error) {
 		console.log("the table was empty")
 		console.log(error)
