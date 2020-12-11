@@ -4,12 +4,14 @@
 const express = require("express")
 const cors = require("cors")
 const { join } = require("path")
-const productRoutes = require("./services/products")
 /**
  * internal modules
  */
 const { initialize } = require("./services/dbms")
 const { badRequest, funny, catchAllHandler } = require("./services/error")
+const productRoutes = require("./services/products")
+const reviewRoutes = require("./services/reviews")
+
 /**
  * initializations
  */
@@ -23,6 +25,7 @@ server.use(cors())
 server.use(express.json())
 server.use(express.static(publicFolder)) //overkill, i know
 server.use("/products", productRoutes)
+server.use("/reviews", reviewRoutes)
 server.use(badRequest)
 server.use(funny)
 server.use(catchAllHandler)

@@ -116,6 +116,16 @@ const insert = async (Table, obj, id) => {
 		console.log(error)
 		//table = {}
 	}
+	try {
+		if (checkId(Table, id)) {
+			err = new Error("cannot edit data that does not exist")
+			throw err
+		}
+	} catch (error) {
+		error.httpstatuscode = 400
+		return error
+	}
+
 	id = id ? id : uniqid()
 	console.log("id dati da inserire ", id)
 	table[id] = obj

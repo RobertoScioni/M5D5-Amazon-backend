@@ -32,17 +32,18 @@ const { check, validationResult } = require("express-validator")
 //initialization
 const router = express.Router()
 const upload = multer({})
+const table = "reviews.json"
 const valid = [
 	check("comment")
 		.isLength({ min: 3 })
 		.withMessage("minimum lenght is 3 characters")
 		.exists()
 		.withMessage("name must exist"),
-	check("elementID")
-		.isLength({ min: 5 })
-		.withMessage("description too short")
+	check("elementId")
+		.isLength({ min: 14 })
+		.withMessage("product id too short")
 		.exists()
-		.withMessage("description must be provided"),
+		.withMessage("product id must be provided"),
 	check("rate")
 		.isNumeric()
 		.withMessage("price is usually a numeber")
@@ -53,7 +54,7 @@ const valid = [
 router.get("/", async (req, res, next) => {
 	let body = null
 	try {
-		body = await openTable("products.json")
+		body = await openTable(table)
 		console.log(body)
 	} catch (error) {
 		console.error(error)
@@ -78,7 +79,7 @@ router.post("/", valid, async (req, res, next) => {
 		let body = { ...req.body }
 		body.createdAt = new Date()
 
-		const id = await insert("products.json", body, null)
+		const id = await insert(table, body, null)
 		res.send(id)
 	} catch (error) {
 		console.error(error)
@@ -89,7 +90,7 @@ router.post("/", valid, async (req, res, next) => {
 
 router.delete("/:id", async (req, res, next) => {
 	try {
-		del("products.json", req.params.id)
+		del(table, req.params.id)
 		res.send("deleted")
 	} catch (error) {
 		console.error(error)
@@ -111,11 +112,16 @@ router.put("/:id", valid, async (req, res, next) => {
 	try {
 		let body = { ...req.body }
 		body.updatedAt = new Date()
-		insert("products.json", body, req.params.id)
+		let id = await insert(table, body, req.params.id)
+
+		if (typeof id === "object") {
+			throw id
+		}
+		console.log("this should be a string or an object i think ", typeof id)
 		res.send("ok")
 	} catch (error) {
 		console.error(error)
-		error.httpStatusCode = 500
+		error.httpStatusCode = error.hasOwnProperty("httpStatusCode") || 500
 		next(error)
 	}
 })
@@ -133,7 +139,7 @@ router.post("/:id/image", upload.single("picture"), async (req, res, next) => {
 		console.log(req.file.buffer)
 		await writeFile(dest, req.file.buffer)
 		linkFile(
-			"products.json",
+			table,
 			req.params.id,
 			"image",
 			`http://localhost:${process.env.PORT || 2001}/img/products/${
